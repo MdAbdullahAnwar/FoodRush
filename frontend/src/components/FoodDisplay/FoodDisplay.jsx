@@ -22,4 +22,4 @@ const FoodDisplay = ({category}) => {
   )
 }
 
-export default FoodDisplay
+export default FoodDisplay;

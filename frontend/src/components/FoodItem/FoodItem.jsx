@@ -32,4 +32,4 @@ const FoodItem = ({id,name,price,description,image}) => {
   )
 }
 
-export default FoodItem
+export default FoodItem;
