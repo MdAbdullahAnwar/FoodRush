@@ -63,37 +63,71 @@
     cursor: pointer;
 }
 
-.cart-promocode{
-    flex: 1;
+.cart-promocode {
+  margin-top: 40px;
+  padding: 20px;
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
 }
 
-.cart-promocode p{
-    color: #555;
+.cart-promocode p {
+  font-size: 16px;
+  margin-bottom: 10px;
 }
 
-.cart-promocode-input{
-    margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #eaeaea;
-    border-radius: 4px;
+.promo-codes {
+  margin: 10px 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.cart-promocode-input input{
-    background: transparent;
-    border: none;
-    outline: none;
-    padding-left: 10px;
+.promo-codes span {
+  background-color: #f0f0f0;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  border: 1px solid #ccc;
+  transition: background-color 0.2s, border 0.2s;
 }
 
-.cart-promocode-input button{
-    width: max(10vw,150px);
-    padding: 12px 5px;
-    background-color: black;
-    border: none;
-    color: white;
-    border-radius: 4px;
+.promo-codes span:hover {
+  background-color: #ffe5e5;
+  border-color: tomato;
+  color: tomato;
+}
+
+.cart-promocode-input {
+  display: flex;
+  gap: 10px;
+}
+
+.cart-promocode-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.cart-promocode-input button {
+  padding: 10px 20px;
+  background-color: tomato;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cart-promocode-input button:hover {
+  background-color: #e64523;
+}
+
+.promo-message {
+  margin-top: 10px;
+  color: green;
+  font-weight: 500;
 }
 
 .qty-btn-add {

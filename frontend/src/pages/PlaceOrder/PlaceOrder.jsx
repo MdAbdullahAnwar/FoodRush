@@ -1,22 +1,33 @@
-import React, { useContext, useState } from 'react';
-import './PlaceOrder.css';
-import { StoreContext } from '../../context/StoreContext';
-import { db } from '../../firebase';
-import { collection, addDoc } from 'firebase/firestore';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from "react";
+import "./PlaceOrder.css";
+import { StoreContext } from "../../context/StoreContext";
+import { db } from "../../firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const PlaceOrder = () => {
-  const { cartItems, getTotalCartAmount, userId, setCartItems } = useContext(StoreContext);
+  const { cartItems, getTotalCartAmount, userId, setCartItems } =
+    useContext(StoreContext);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    firstName: "", lastName: "", email: "", street: "", city: "", state: "", zip: "", country: "", phone: ""
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    state: "",
+    zip: "",
+    country: "",
+    phone: "",
   });
+
+  const storedDiscount = Number(localStorage.getItem("discount")) || 0;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleOrder = async (e) => {
@@ -25,7 +36,9 @@ const PlaceOrder = () => {
 
     const orderData = {
       items: cartItems,
-      total: getTotalCartAmount() + 2,
+      subtotal: getTotalCartAmount(),
+      discount: storedDiscount,
+      total: getTotalCartAmount() - storedDiscount + 2,
       date: Date.now(),
       deliveryInfo: formData,
     };
@@ -33,6 +46,8 @@ const PlaceOrder = () => {
     try {
       await addDoc(collection(db, "users", userId, "orders"), orderData);
       setCartItems({});
+      localStorage.removeItem("promoCode");
+      localStorage.removeItem("discount");
       toast.success("Order placed successfully!");
       navigate("/orders");
     } catch (error) {
@@ -42,34 +57,110 @@ const PlaceOrder = () => {
   };
 
   return (
-    <form onSubmit={handleOrder} className='place-order'>
+    <form onSubmit={handleOrder} className="place-order">
       <div className="place-order-left">
-        <p className='title'>Delivery Information</p>
+        <p className="title">Delivery Information</p>
         <div className="multi-fields">
-          <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder='First Name' required />
-          <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder='Last Name' required />
+          <input
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            placeholder="First Name"
+            required
+          />
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            placeholder="Last Name"
+            required
+          />
         </div>
-        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder='Email address' required />
-        <input type="text" name="street" value={formData.street} onChange={handleChange} placeholder='Street' required />
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="Email address"
+          required
+        />
+        <input
+          type="text"
+          name="street"
+          value={formData.street}
+          onChange={handleChange}
+          placeholder="Street"
+          required
+        />
         <div className="multi-fields">
-          <input type="text" name="city" value={formData.city} onChange={handleChange} placeholder='City' required />
-          <input type="text" name="state" value={formData.state} onChange={handleChange} placeholder='State' required />
+          <input
+            type="text"
+            name="city"
+            value={formData.city}
+            onChange={handleChange}
+            placeholder="City"
+            required
+          />
+          <input
+            type="text"
+            name="state"
+            value={formData.state}
+            onChange={handleChange}
+            placeholder="State"
+            required
+          />
         </div>
         <div className="multi-fields">
-          <input type="text" name="zip" value={formData.zip} onChange={handleChange} placeholder='Zip Code' required />
-          <input type="text" name="country" value={formData.country} onChange={handleChange} placeholder='Country' required />
+          <input
+            type="text"
+            name="zip"
+            value={formData.zip}
+            onChange={handleChange}
+            placeholder="Zip Code"
+            required
+          />
+          <input
+            type="text"
+            name="country"
+            value={formData.country}
+            onChange={handleChange}
+            placeholder="Country"
+            required
+          />
         </div>
-        <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder='Phone' required />
+        <input
+          type="text"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          placeholder="Phone"
+          required
+        />
       </div>
 
       <div className="place-order-right">
         <div className="cart-total">
           <h2>Cart Totals</h2>
-          <div className="cart-total-details"><p>Subtotal</p><p>${getTotalCartAmount()}</p></div>
-          <hr />
-          <div className="cart-total-details"><p>Delivery Fee</p><p>${getTotalCartAmount() === 0 ? 0 : 2}</p></div>
-          <hr />
-          <div className="cart-total-details"><b>Total</b><b>${getTotalCartAmount() + 2}</b></div>
+          <div className="cart-total-details">
+            <p>Subtotal</p>
+            <p>${getTotalCartAmount()}</p>
+          </div>
+          {storedDiscount > 0 && (
+            <div className="cart-total-details">
+              <p>Discount</p>
+              <p>-${storedDiscount}</p>
+            </div>
+          )}
+          <div className="cart-total-details">
+            <p>Delivery Fee</p>
+            <p>${getTotalCartAmount() === 0 ? 0 : 2}</p>
+          </div>
+          <div className="cart-total-details">
+            <b>Total</b>
+            <b>${getTotalCartAmount() - storedDiscount + 2}</b>
+          </div>
         </div>
         <button type="submit">PROCEED TO PAYMENT</button>
       </div>
