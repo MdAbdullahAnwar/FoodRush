@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react';
 import './List.css';
 import { toast } from 'react-toastify';
 import { db } from '../../firebase';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { Pencil, Trash2 } from 'lucide-react';
+import EditModal from './EditModal';
 
 const List = () => {
   const [list, setList] = useState([]);
+  const [editItem, setEditItem] = useState(null);
+  const [editedData, setEditedData] = useState({ name: '', category: '', price: '', image: '' });
 
   const fetchList = async () => {
     try {
@@ -17,7 +21,7 @@ const List = () => {
       const sortedByCategory = items.sort((a, b) => a.category.localeCompare(b.category));
       setList(sortedByCategory);
     } catch (error) {
-        toast.error('Failed To Fetch Data');
+      toast.error('Failed To Fetch Data');
     }
   };
 
@@ -33,7 +37,6 @@ const List = () => {
 
   const sortList = (type) => {
     let sortedList = [...list];
-
     switch (type) {
       case 'az':
         sortedList.sort((a, b) => a.name.localeCompare(b.name));
@@ -50,8 +53,34 @@ const List = () => {
       default:
         return;
     }
-
     setList(sortedList);
+  };
+
+  const handleEditClick = (item) => {
+    setEditItem(item);
+    setEditedData({
+      name: item.name,
+      category: item.category,
+      price: item.price,
+      image: item.image,
+    });
+  };
+
+  const handleSave = async () => {
+    try {
+      const foodRef = doc(db, 'foods', editItem.id);
+      await updateDoc(foodRef, {
+        name: editedData.name,
+        category: editedData.category,
+        price: Number(editedData.price),
+        image: editedData.image,
+      });
+      toast.success('Item Updated Successfully');
+      setEditItem(null);
+      fetchList();
+    } catch (error) {
+      toast.error('Update Failed');
+    }
   };
 
   useEffect(() => {
@@ -74,25 +103,47 @@ const List = () => {
 
       <div className="list-table">
         <div className="list-table-format title">
-            <b>#</b>
-            <b>Image</b>
-            <b>Name</b>
-            <b>Category</b>
-            <b>Price</b>
-            <b>Action</b>
+          <b>#</b>
+          <b>Image</b>
+          <b>Name</b>
+          <b>Category</b>
+          <b>Price</b>
+          <b>Actions</b>
         </div>
 
         {list.map((item, index) => (
-            <div key={index} className="list-table-format">
-                <p>{index + 1}</p>
-                <img src={item.image} alt={item.name} />
-                <p>{item.name}</p>
-                <p>{item.category}</p>
-                <p>${item.price}</p>
-                <p onClick={() => removeFood(item.id)} className="cursor">X</p>
+          <div key={index} className="list-table-format">
+            <p>{index + 1}</p>
+            <img src={item.image} alt={item.name} />
+            <p>{item.name}</p>
+            <p>{item.category}</p>
+            <p>${item.price}</p>
+            <div className="action-icons">
+              <Pencil
+                size={18}
+                className="cursor"
+                style={{ marginRight: '10px', color: '#3498db' }}
+                onClick={() => handleEditClick(item)}
+              />
+              <Trash2
+                size={18}
+                className="cursor"
+                style={{ color: 'red' }}
+                onClick={() => removeFood(item.id)}
+              />
             </div>
-            ))}
+          </div>
+        ))}
       </div>
+      
+      {editItem && (
+        <EditModal
+          editedData={editedData}
+          setEditedData={setEditedData}
+          onSave={handleSave}
+          onCancel={() => setEditItem(null)}
+        />
+      )}
     </div>
   );
 };
