@@ -30,7 +30,18 @@ const Navbar = ({ setShowLogin }) => {
       <div className="navbar-right">
         <img src={assets.search_icon} alt="Search Bar" />
         <div className="navbar-search-icon">
-          <Link to='/cart'><img src={assets.basket_icon} alt="Cart" /></Link>
+          {token ? (
+            <Link to='/cart'>
+              <img src={assets.basket_icon} alt="Cart" />
+            </Link>
+          ) : (
+            <img
+              src={assets.basket_icon}
+              alt="Cart"
+              onClick={() => setShowLogin(true)}
+              style={{ cursor: "pointer" }}
+            />
+          )}
           <div className={getTotalCartAmount() === 0 ? "" : "dot"}></div>
         </div>
         {!token ? (
@@ -39,7 +50,7 @@ const Navbar = ({ setShowLogin }) => {
           <div className='navbar-profile'>
             <img src={assets.profile_icon} alt="Profile" />
             <ul className="nav-profile-dropdown">
-              <li><img src={assets.bag_icon} alt="Bag" /><p>Orders</p></li>
+              <li onClick={() => navigate("/orders")}><img src={assets.bag_icon} alt="Bag" /><p>Orders</p></li>
               <hr />
               <li onClick={logout}><img src={assets.logout_icon} alt="Logout" /><p>Logout</p></li>
             </ul>

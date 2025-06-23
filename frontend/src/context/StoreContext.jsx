@@ -1,7 +1,13 @@
 import { createContext, useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  getDoc,
+} from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
 export const StoreContext = createContext(null);
 
@@ -9,29 +15,61 @@ const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const [food_list, setFoodList] = useState([]);
   const [token, setToken] = useState("");
+  const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch food items from Firestore
   const fetchFoodItems = async () => {
-    try {
-      const snapshot = await getDocs(collection(db, "foods"));
-      const fetchedItems = snapshot.docs.map((doc) => ({
-        _id: doc.id,
-        ...doc.data(),
-      }));
-      setFoodList(fetchedItems);
-    } catch (err) {
-      console.error("Failed to fetch food items:", err);
+    const snapshot = await getDocs(collection(db, "foods"));
+    const data = snapshot.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+    setFoodList(data);
+  };
+
+  // Load user cart
+  const loadCart = async (uid) => {
+    const cartRef = doc(db, "users", uid);
+    const docSnap = await getDoc(cartRef);
+    if (docSnap.exists()) {
+      setCartItems(docSnap.data().cart || {});
     }
   };
 
+  // Save cart to Firestore
+  const saveCart = async (uid, cart) => {
+    await setDoc(doc(db, "users", uid), { cart }, { merge: true });
+  };
+
+  useEffect(() => {
+    fetchFoodItems();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const idToken = await user.getIdToken();
+            setToken(idToken);
+            setUserId(user.uid);
+            loadCart(user.uid);
+        } else {
+            setToken("");
+            setUserId(null);
+            setCartItems({});
+        }
+        setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (userId) saveCart(userId, cartItems);
+  }, [cartItems]);
+
   const addToCart = (itemId) => {
-    setCartItems((prev) => ({
+    setCartItems(prev => ({
       ...prev,
       [itemId]: (prev[itemId] || 0) + 1,
     }));
   };
 
   const removeFromCart = (itemId) => {
-    setCartItems((prev) => {
+    setCartItems(prev => {
       const updated = { ...prev };
       if (updated[itemId] > 1) updated[itemId] -= 1;
       else delete updated[itemId];
@@ -40,39 +78,25 @@ const StoreContextProvider = (props) => {
   };
 
   const getTotalCartAmount = () => {
-    let total = 0;
-    for (const itemId in cartItems) {
-      const item = food_list.find((f) => f._id === itemId);
-      if (item) total += item.price * cartItems[itemId];
-    }
-    return total;
+    return Object.entries(cartItems).reduce((total, [id, qty]) => {
+      const item = food_list.find(f => f._id === id);
+      return item ? total + item.price * qty : total;
+    }, 0);
   };
-
-  useEffect(() => {
-    fetchFoodItems(); // Load food items on mount
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setToken(user.accessToken);
-        localStorage.setItem("token", user.accessToken);
-      } else {
-        setToken("");
-        localStorage.removeItem("token");
-      }
-    });
-    return () => unsubscribe();
-  }, []);
 
   return (
     <StoreContext.Provider
       value={{
+        food_list,
         cartItems,
         setCartItems,
-        food_list,
         addToCart,
         removeFromCart,
         getTotalCartAmount,
         token,
         setToken,
+        userId,
+        loading
       }}
     >
       {props.children}
