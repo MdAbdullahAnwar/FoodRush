@@ -7,7 +7,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 
 const Navbar = ({ setShowLogin }) => {
-  const [menu, setMenu] = useState("home");
+  const [menu, setMenu] = useState("menu");
   const { getTotalCartAmount, token, setToken } = useContext(StoreContext);
   const navigate = useNavigate();
 

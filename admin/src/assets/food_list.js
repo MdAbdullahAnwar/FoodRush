@@ -8,7 +8,7 @@ export const food_list = [
   },
   {
     name: "Veg salad",
-    image: "https://i.ibb.co/pr6x1r6/food-2.png",
+    image: "https://i.ibb.co/pr6x1r76/food-2.png",
     price: 18,
     description: "Food provides essential nutrients for overall health and well-being",
     category: "Salad"

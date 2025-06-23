@@ -1,7 +1,7 @@
 import React from 'react';
-import { db } from '../../firebase' // adjust path as needed
+import { db } from '../../firebase';
 import { collection, addDoc } from 'firebase/firestore';
-import { food_list } from '../../assets/food_list' // adjust if placed differently
+import { food_list } from '../../assets/food_list';
 import { toast } from 'react-toastify';
 
 const UploadFoods = () => {

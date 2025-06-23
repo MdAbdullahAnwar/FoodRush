@@ -1,13 +1,27 @@
 import { createContext, useEffect, useState } from "react";
-import { food_list } from "../assets/assets";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
+  const [food_list, setFoodList] = useState([]);
   const [token, setToken] = useState("");
+
+  const fetchFoodItems = async () => {
+    try {
+      const snapshot = await getDocs(collection(db, "foods"));
+      const fetchedItems = snapshot.docs.map((doc) => ({
+        _id: doc.id,
+        ...doc.data(),
+      }));
+      setFoodList(fetchedItems);
+    } catch (err) {
+      console.error("Failed to fetch food items:", err);
+    }
+  };
 
   const addToCart = (itemId) => {
     setCartItems((prev) => ({
@@ -17,26 +31,25 @@ const StoreContextProvider = (props) => {
   };
 
   const removeFromCart = (itemId) => {
-    setCartItems((prev) => ({
-      ...prev,
-      [itemId]: Math.max(0, (prev[itemId] || 0) - 1),
-    }));
+    setCartItems((prev) => {
+      const updated = { ...prev };
+      if (updated[itemId] > 1) updated[itemId] -= 1;
+      else delete updated[itemId];
+      return updated;
+    });
   };
 
   const getTotalCartAmount = () => {
-    let totalAmount = 0;
-    for (const item in cartItems) {
-      if (cartItems[item] > 0) {
-        const itemInfo = food_list.find((product) => product._id === item);
-        if (itemInfo) {
-          totalAmount += itemInfo.price * cartItems[item];
-        }
-      }
+    let total = 0;
+    for (const itemId in cartItems) {
+      const item = food_list.find((f) => f._id === itemId);
+      if (item) total += item.price * cartItems[itemId];
     }
-    return totalAmount;
+    return total;
   };
 
   useEffect(() => {
+    fetchFoodItems(); // Load food items on mount
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setToken(user.accessToken);
@@ -46,23 +59,22 @@ const StoreContextProvider = (props) => {
         localStorage.removeItem("token");
       }
     });
-
     return () => unsubscribe();
   }, []);
 
-  const contextValue = {
-    food_list,
-    cartItems,
-    setCartItems,
-    addToCart,
-    removeFromCart,
-    getTotalCartAmount,
-    token,
-    setToken,
-  };
-
   return (
-    <StoreContext.Provider value={contextValue}>
+    <StoreContext.Provider
+      value={{
+        cartItems,
+        setCartItems,
+        food_list,
+        addToCart,
+        removeFromCart,
+        getTotalCartAmount,
+        token,
+        setToken,
+      }}
+    >
       {props.children}
     </StoreContext.Provider>
   );
