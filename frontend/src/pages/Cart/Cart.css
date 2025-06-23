@@ -96,6 +96,53 @@
     border-radius: 4px;
 }
 
+.qty-btn-add {
+  margin: 0 6px;
+  padding: 4px 10px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #28a745;
+  color: #fff;
+  border: 1px solid #1e7e34;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.qty-btn-add:hover {
+  background-color: #218838;
+  border-color: #1c7430;
+}
+
+.qty-btn-sub {
+  margin: 0 6px;
+  padding: 4px 10px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #dc3545;
+  color: #fff;
+  border: 1px solid #b21f2d;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.qty-btn-sub:hover {
+  background-color: #c82333;
+  border-color: #a71d2a;
+}
+
+.trash-icon {
+  color: #dc3545;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.trash-icon:hover {
+  color: #bd2130;
+  transform: scale(1.1);
+}
+
 @media (max-width:750px){
     .cart-bottom{
         flex-direction: column-reverse;

@@ -2,10 +2,28 @@ import React, { useContext } from "react";
 import "./Cart.css";
 import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
+import { Trash2 } from 'lucide-react';
 
 const Cart = () => {
-  const { cartItems, food_list, removeFromCart, getTotalCartAmount, loading } = useContext(StoreContext);
+  const {
+    cartItems,
+    food_list,
+    removeFromCart,
+    getTotalCartAmount,
+    addToCart,
+    setCartItems,
+    loading,
+  } = useContext(StoreContext);
   const navigate = useNavigate();
+
+  // Remove entire item directly
+  const handleRemoveItem = (itemId) => {
+    setCartItems((prev) => {
+      const updated = { ...prev };
+      delete updated[itemId];
+      return updated;
+    });
+  };
 
   if (loading) {
     return <div className="cart">Loading...</div>;
@@ -34,9 +52,13 @@ const Cart = () => {
                   <img src={item.image} alt={item.name} />
                   <p>{item.name}</p>
                   <p>${item.price}</p>
-                  <p>{cartItems[item._id]}</p>
+                  <p>
+                    <button onClick={() => removeFromCart(item._id)} className="qty-btn-sub">-</button>
+                    {cartItems[item._id]}
+                    <button onClick={() => addToCart(item._id)} className="qty-btn-add">+</button>
+                  </p>
                   <p>${item.price * cartItems[item._id]}</p>
-                  <p onClick={() => removeFromCart(item._id)} className="cross">X</p>
+                  <Trash2 onClick={() => handleRemoveItem(item._id)} className="trash-icon" />
                 </div>
                 <hr />
               </div>
@@ -45,6 +67,7 @@ const Cart = () => {
           return null;
         })}
       </div>
+
       <div className="cart-bottom">
         <div className="cart-total">
           <h2>Cart Totals</h2>
@@ -68,6 +91,7 @@ const Cart = () => {
             PROCEED TO CHECKOUT
           </button>
         </div>
+
         <div className="cart-promocode">
           <div>
             <p>If you have a Promo Code, Enter it here</p>
