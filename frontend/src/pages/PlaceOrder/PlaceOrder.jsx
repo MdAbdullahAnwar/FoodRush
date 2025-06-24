@@ -24,6 +24,8 @@ const PlaceOrder = () => {
   });
 
   const storedDiscount = Number(localStorage.getItem("discount")) || 0;
+  const deliveryFee = getTotalCartAmount() === 0 ? 0 : 2;
+  const totalAmount = getTotalCartAmount() - storedDiscount + deliveryFee;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,27 +36,39 @@ const PlaceOrder = () => {
     e.preventDefault();
     if (!userId) return toast.error("You must be logged in!");
 
+    const total = getTotalCartAmount() - storedDiscount + 2;
+
     const orderData = {
-      items: cartItems,
-      subtotal: getTotalCartAmount(),
-      discount: storedDiscount,
-      total: getTotalCartAmount() - storedDiscount + 2,
-      date: Date.now(),
-      deliveryInfo: formData,
+        items: cartItems,
+        subtotal: getTotalCartAmount(),
+        discount: storedDiscount,
+        total: total,
+        date: Date.now(),
+        deliveryInfo: formData,
+        paymentStatus: 'pending',
     };
 
     try {
-      await addDoc(collection(db, "users", userId, "orders"), orderData);
-      setCartItems({});
-      localStorage.removeItem("promoCode");
-      localStorage.removeItem("discount");
-      toast.success("Order placed successfully!");
-      navigate("/orders");
+        const docRef = await addDoc(
+        collection(db, "users", userId, "orders"),
+        orderData
+        );
+
+        navigate("/payment", {
+        state: {
+            name: `${formData.firstName} ${formData.lastName}`,
+            email: formData.email,
+            phone: formData.phone,
+            orderId: docRef.id,
+            amount: total,
+        },
+        });
     } catch (error) {
-      toast.error("Order failed!");
-      console.error("Order error:", error);
+        toast.error("Order failed!");
+        console.error("Order error:", error);
     }
   };
+
 
   return (
     <form onSubmit={handleOrder} className="place-order">
@@ -131,12 +145,14 @@ const PlaceOrder = () => {
           />
         </div>
         <input
-          type="text"
+          type="tel"
           name="phone"
           value={formData.phone}
           onChange={handleChange}
           placeholder="Phone"
           required
+          pattern="[0-9]{10}"
+          title="Please enter a 10-digit phone number"
         />
       </div>
 
@@ -145,24 +161,27 @@ const PlaceOrder = () => {
           <h2>Cart Totals</h2>
           <div className="cart-total-details">
             <p>Subtotal</p>
-            <p>${getTotalCartAmount()}</p>
+            <p>${getTotalCartAmount().toFixed(2)}</p>
           </div>
           {storedDiscount > 0 && (
             <div className="cart-total-details">
               <p>Discount</p>
-              <p>-${storedDiscount}</p>
+              <p>-${storedDiscount.toFixed(2)}</p>
             </div>
           )}
           <div className="cart-total-details">
             <p>Delivery Fee</p>
-            <p>${getTotalCartAmount() === 0 ? 0 : 2}</p>
+            <p>${deliveryFee.toFixed(2)}</p>
           </div>
+          <hr />
           <div className="cart-total-details">
             <b>Total</b>
-            <b>${getTotalCartAmount() - storedDiscount + 2}</b>
+            <b>${totalAmount.toFixed(2)}</b>
           </div>
         </div>
-        <button type="submit">PROCEED TO PAYMENT</button>
+        <button type="submit" className="proceed-btn">
+          PROCEED TO PAYMENT
+        </button>
       </div>
     </form>
   );
