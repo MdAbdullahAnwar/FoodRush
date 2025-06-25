@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { StoreContext } from "../../context/StoreContext";
 import { useLocation } from "react-router-dom";
-import { auth, db } from "../../firebase";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { db } from "../../firebase";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { toast } from "react-toastify";
 import "./Orders.css";
 
@@ -28,60 +28,49 @@ const Orders = () => {
   }, [location.state, refreshCart]);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      if (!userId) {
-        setLoading(false);
-        return;
-      }
+    if (!userId) return;
 
-      try {
-        const ordersRef = collection(db, "users", userId, "orders");
-        const q = query(ordersRef, orderBy("date", "desc"));
-        const snapshot = await getDocs(q);
-        const data = snapshot.docs.map((doc) => ({
+    const ordersRef = collection(db, "users", userId, "orders");
+    const q = query(ordersRef, orderBy("date", "desc"));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs
+        .map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        }));
-        setOrders(data);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-        toast.error("Failed to load orders");
-      } finally {
-        setLoading(false);
-      }
-    };
+        }))
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+      setOrders(data);
+      setLoading(false);
+    });
 
-    fetchOrders();
+    return () => unsubscribe();
   }, [userId]);
 
   const getItemDetails = (itemId) => {
     const item = food_list.find((food) => food._id === itemId);
     return item
-      ? {
-          name: item.name,
-          price: item.price,
-          image: item.image,
-        }
-      : {
-          name: itemId,
-          price: 0,
-          image: null,
-        };
+      ? { name: item.name, price: item.price, image: item.image }
+      : { name: itemId, price: 0, image: null };
   };
 
   const getStatusBadge = (order) => {
-    const status = order.paymentStatus || order.status || "pending";
+    const status = order.status || order.paymentStatus || "pending";
     const statusClass = {
       completed: "status-completed",
+      delivered: "status-completed",
       paid: "status-completed",
       pending: "status-pending",
       failed: "status-failed",
       payment_failed: "status-failed",
+      "out for delivery": "status-pending",
+      "food processing": "status-pending",
     };
-
     return (
       <span
-        className={`status-badge ${statusClass[status] || "status-pending"}`}
+        className={`status-badge ${
+          statusClass[status.toLowerCase()] || "status-pending"
+        }`}
       >
         {status.toUpperCase()}
       </span>
@@ -151,11 +140,11 @@ const Orders = () => {
                               <span className="item-qty">{qty}</span>
                               <span className="item-multiply">×</span>
                               <span className="item-price">
-                                ${item.price.toFixed(2)}
+                                ₹{item.price.toFixed(2)}
                               </span>
                               <span className="item-equals">=</span>
                               <span className="item-total">
-                                ${itemTotal.toFixed(2)}
+                                ₹{itemTotal.toFixed(2)}
                               </span>
                             </div>
                           </div>
@@ -168,24 +157,24 @@ const Orders = () => {
                 <div className="order-summary">
                   <div className="summary-row">
                     <span>Subtotal:</span>
-                    <span>${order.subtotal?.toFixed(2) || "0.00"}</span>
+                    <span>₹{order.subtotal?.toFixed(2) || "0.00"}</span>
                   </div>
                   {order.discount > 0 && (
                     <div className="summary-row discount">
                       <span>Discount:</span>
-                      <span>-${order.discount.toFixed(2)}</span>
+                      <span>-₹{order.discount.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="summary-row">
                     <span>Delivery Fee:</span>
-                    <span>${order.deliveryFee?.toFixed(2) || "0.00"}</span>
+                    <span>₹{order.deliveryFee?.toFixed(2) || "0.00"}</span>
                   </div>
                   <div className="summary-row total">
                     <span>
                       <strong>Total:</strong>
                     </span>
                     <span>
-                      <strong>${order.total?.toFixed(2) || "0.00"}</strong>
+                      <strong>₹{order.total?.toFixed(2) || "0.00"}</strong>
                     </span>
                   </div>
                 </div>
