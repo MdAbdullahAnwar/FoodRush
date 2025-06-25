@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { auth, db } from "../firebase";
-import { collection, getDocs, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc, getDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
 export const StoreContext = createContext(null);
@@ -18,46 +18,55 @@ const StoreContextProvider = (props) => {
     setFoodList(data);
   };
 
-  const loadCart = async (uid) => {
-    const cartRef = doc(db, "users", uid);
-    const docSnap = await getDoc(cartRef);
-    if (docSnap.exists()) {
-      setCartItems(docSnap.data().cart || {});
-    }
+  const setupCartListener = (uid) => {
+    return onSnapshot(doc(db, "users", uid), (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        setCartItems(data.cart || {});
+      } else {
+        setDoc(doc(db, "users", uid), { cart: {} });
+        setCartItems({});
+      }
+    });
   };
 
-  const saveCart = async (uid, cart) => {
-    await setDoc(doc(db, "users", uid), { cart }, { merge: true });
+  const saveCart = async (cart) => {
+    if (!userId) return;
+    try {
+      await updateDoc(doc(db, "users", userId), {
+        cart: cart
+      });
+    } catch (error) {
+      console.error("Error saving cart:", error);
+      throw error;
+    }
   };
 
   const clearCart = async () => {
     try {
       setCartItems({});
       if (userId) {
-        await updateDoc(doc(db, "users", userId), {
-          cart: {}
-        });
-        console.log("Cart cleared successfully for user:", userId);
+        await saveCart({});
       }
     } catch (error) {
       console.error("Error clearing cart:", error);
-      const cartRef = doc(db, "users", userId);
-      const docSnap = await getDoc(cartRef);
-      if (docSnap.exists()) {
-        setCartItems(docSnap.data().cart || {});
-      }
       throw error;
     }
   };
 
   useEffect(() => {
     fetchFoodItems();
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let unsubscribeCart = () => {};
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const idToken = await user.getIdToken();
-        setToken(idToken);
-        setUserId(user.uid);
-        loadCart(user.uid);
+        try {
+          const idToken = await user.getIdToken();
+          setToken(idToken);
+          setUserId(user.uid);
+          unsubscribeCart = setupCartListener(user.uid);
+        } catch (error) {
+          console.error("Auth state change error:", error);
+        }
       } else {
         setToken("");
         setUserId(null);
@@ -65,29 +74,38 @@ const StoreContextProvider = (props) => {
       }
       setLoading(false);
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      unsubscribeCart();
+    };
   }, []);
 
-  useEffect(() => {
-    if (userId && Object.keys(cartItems).length > 0) {
-      saveCart(userId, cartItems);
-    }
-  }, [cartItems, userId]);
-
-  const addToCart = (itemId) => {
-    setCartItems((prev) => ({
-      ...prev,
-      [itemId]: (prev[itemId] || 0) + 1,
-    }));
+  const addToCart = async (itemId) => {
+    const updatedCart = {
+      ...cartItems,
+      [itemId]: (cartItems[itemId] || 0) + 1
+    };
+    setCartItems(updatedCart);
+    await saveCart(updatedCart);
   };
 
-  const removeFromCart = (itemId) => {
-    setCartItems((prev) => {
-      const updated = { ...prev };
-      if (updated[itemId] > 1) updated[itemId] -= 1;
-      else delete updated[itemId];
-      return updated;
-    });
+  const removeFromCart = async (itemId) => {
+    const updatedCart = { ...cartItems };
+    if (updatedCart[itemId] > 1) {
+      updatedCart[itemId] -= 1;
+    } else {
+      delete updatedCart[itemId];
+    }
+    setCartItems(updatedCart);
+    await saveCart(updatedCart);
+  };
+
+  const handleRemoveItem = async (itemId) => {
+    const updatedCart = { ...cartItems };
+    delete updatedCart[itemId];
+    setCartItems(updatedCart);
+    await saveCart(updatedCart);
   };
 
   const getTotalCartAmount = () => {
@@ -105,6 +123,7 @@ const StoreContextProvider = (props) => {
         setCartItems,
         addToCart,
         removeFromCart,
+        handleRemoveItem,
         getTotalCartAmount,
         token,
         setToken,

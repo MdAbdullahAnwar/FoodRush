@@ -19,7 +19,13 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState(""); 
   const { loading } = useContext(StoreContext);
 
-  if (loading) return <div className="loading-screen">Loading...</div>;
+  if (loading)
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner"></div>
+        Loading...
+      </div>
+    );
 
   return (
     <>

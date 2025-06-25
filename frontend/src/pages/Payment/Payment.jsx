@@ -87,8 +87,6 @@ const Payment = () => {
                 replace: true,
               });
             } catch (error) {
-              console.error("Payment processing error:", error);
-              toast.error("Payment completed but cart clearing failed");
               navigate("/orders", { state: { error: true }, replace: true });
             }
           },

@@ -20,9 +20,6 @@ const Orders = () => {
       if (refreshCart) refreshCart();
       window.history.replaceState({}, document.title);
     } else if (location.state?.error) {
-      toast.error(
-        location.state.message || "There was an error with your order"
-      );
       window.history.replaceState({}, document.title);
     }
   }, [location.state, refreshCart]);

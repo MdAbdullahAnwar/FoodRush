@@ -11,10 +11,14 @@ const Cart = () => {
     removeFromCart,
     getTotalCartAmount,
     addToCart,
-    setCartItems,
+    handleRemoveItem,
     loading,
   } = useContext(StoreContext);
   const navigate = useNavigate();
+
+  const [promoCode, setPromoCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const savedCode = localStorage.getItem("promoCode");
@@ -22,10 +26,6 @@ const Cart = () => {
     if (savedCode) setPromoCode(savedCode);
     if (savedDiscount) setDiscount(Number(savedDiscount));
   }, []);
-
-  const [promoCode, setPromoCode] = useState("");
-  const [discount, setDiscount] = useState(0);
-  const [message, setMessage] = useState("");
 
   const subtotal = getTotalCartAmount();
   const deliveryFee = subtotal === 0 ? 0 : 2;
@@ -55,16 +55,7 @@ const Cart = () => {
     localStorage.setItem("discount", discountAmount);
   };
 
-  const handleRemoveItem = (itemId) => {
-    setCartItems((prev) => {
-      const updated = { ...prev };
-      delete updated[itemId];
-      return updated;
-    });
-  };
-
   if (loading) {
-    if (loading)
     return (
       <div className="loading-screen">
         <div className="loading-spinner"></div>
@@ -74,7 +65,7 @@ const Cart = () => {
   }
 
   return (
-    <div>
+    <div className="cart-container">
       <div className="cart">
         <div className="cart-items">
           <div className="cart-items-title">
@@ -85,97 +76,101 @@ const Cart = () => {
             <p>Total</p>
             <p>Remove</p>
           </div>
-        </div>
-        <br />
-        <hr />
-        {food_list.map((item) => {
-          if (cartItems[item._id] > 0) {
-            return (
-              <div key={item._id}>
-                <div className="cart-items-title cart-items-item">
-                  <img src={item.image} alt={item.name} />
-                  <p>{item.name}</p>
-                  <p>${item.price}</p>
-                  <p>
-                    <button
-                      onClick={() => removeFromCart(item._id)}
-                      className="qty-btn-sub"
-                    >
-                      -
-                    </button>
-                    {cartItems[item._id]}
-                    <button
-                      onClick={() => addToCart(item._id)}
-                      className="qty-btn-add"
-                    >
-                      +
-                    </button>
-                  </p>
-                  <p>${item.price * cartItems[item._id]}</p>
-                  <Trash2
-                    onClick={() => handleRemoveItem(item._id)}
-                    className="trash-icon"
-                  />
+          <br />
+          <hr />
+          {food_list.map((item) => {
+            if (cartItems[item._id] > 0) {
+              return (
+                <div key={item._id}>
+                  <div className="cart-items-title cart-items-item">
+                    <img src={item.image} alt={item.name} />
+                    <p>{item.name}</p>
+                    <p>${item.price}</p>
+                    <div className="quantity-controls">
+                      <button
+                        onClick={() => removeFromCart(item._id)}
+                        className="qty-btn-sub"
+                      >
+                        -
+                      </button>
+                      <span>{cartItems[item._id]}</span>
+                      <button
+                        onClick={() => addToCart(item._id)}
+                        className="qty-btn-add"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <p>${item.price * cartItems[item._id]}</p>
+                    <Trash2
+                      onClick={() => handleRemoveItem(item._id)}
+                      className="trash-icon"
+                    />
+                  </div>
+                  <hr />
                 </div>
-                <hr />
+              );
+            }
+            return null;
+          })}
+        </div>
+
+        <div className="cart-bottom">
+          <div className="cart-total">
+            <h2>Cart Totals</h2>
+            <div>
+              <div className="cart-total-details">
+                <p>Subtotal</p>
+                <p>${subtotal}</p>
               </div>
-            );
-          }
-          return null;
-        })}
-      </div>
-
-      <div className="cart-bottom">
-        <div className="cart-total">
-          <h2>Cart Totals</h2>
-          <div>
-            <div className="cart-total-details">
-              <p>Subtotal</p>
-              <p>${subtotal}</p>
+              {discount > 0 && (
+                <>
+                  <hr />
+                  <div className="cart-total-details">
+                    <p>Discount</p>
+                    <p>-${discount}</p>
+                  </div>
+                </>
+              )}
+              <hr />
+              <div className="cart-total-details">
+                <p>Delivery Fee</p>
+                <p>${deliveryFee}</p>
+              </div>
+              <hr />
+              <div className="cart-total-details">
+                <b>Total</b>
+                <b>${total}</b>
+              </div>
             </div>
-            {discount > 0 && (
-              <>
-                <hr />
-                <div className="cart-total-details">
-                  <p>Discount</p>
-                  <p>-${discount}</p>
-                </div>
-              </>
-            )}
-            <hr />
-            <div className="cart-total-details">
-              <p>Delivery Fee</p>
-              <p>${deliveryFee}</p>
-            </div>
-            <hr />
-            <div className="cart-total-details">
-              <b>Total</b>
-              <b>${total}</b>
-            </div>
+            <button 
+              onClick={() => navigate("/order")} 
+              disabled={subtotal === 0}
+              className={subtotal === 0 ? "disabled-btn" : ""}
+            >
+              PROCEED TO CHECKOUT
+            </button>
           </div>
-          <button onClick={() => navigate("/order")}>
-            PROCEED TO CHECKOUT
-          </button>
-        </div>
 
-        <div className="cart-promocode">
-          <div>
-            <p>If you have a Coupon Code, Enter it here</p>
-            <div className="promo-codes">
-              <span onClick={() => setPromoCode("FLAT10")}>FLAT10 (Min $100)</span>
-              <span onClick={() => setPromoCode("FLAT25")}>FLAT25 (Min $200)</span>
-              <span onClick={() => setPromoCode("FLAT50")}>FLAT50 (Min $300)</span>
+          <div className="cart-promocode">
+            <div>
+              <p>If you have a Coupon Code, Enter it here</p>
+              <div className="promo-codes">
+                <span onClick={() => setPromoCode("FLAT10")}>FLAT10 (Min $100)</span>
+                <span onClick={() => setPromoCode("FLAT25")}>FLAT25 (Min $200)</span>
+                <span onClick={() => setPromoCode("FLAT50")}>FLAT50 (Min $300)</span>
+              </div>
+              <div className="cart-promocode-input">
+                <input
+                  type="text"
+                  placeholder="Enter Your Coupon Code"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                />
+                <button onClick={handleApplyPromo}>Apply</button>
+              </div>
+              {message && <p className="promo-message">{message}</p>}
             </div>
-            <div className="cart-promocode-input">
-              <input
-                type="text"
-                placeholder="Enter Your Coupon Code"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value)}
-              />
-              <button onClick={handleApplyPromo}>Apply</button>
-            </div>
-            {message && <p className="promo-message">{message}</p>}
           </div>
         </div>
       </div>
