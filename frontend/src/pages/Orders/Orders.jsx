@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { StoreContext } from '../../context/StoreContext';
-import { useLocation } from 'react-router-dom';
-import { auth, db } from '../../firebase';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
-import { toast } from 'react-toastify';
-import './Orders.css';
+import React, { useContext, useEffect, useState } from "react";
+import { StoreContext } from "../../context/StoreContext";
+import { useLocation } from "react-router-dom";
+import { auth, db } from "../../firebase";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { toast } from "react-toastify";
+import "./Orders.css";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -13,19 +13,16 @@ const Orders = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Handle success state from payment
     if (location.state?.success) {
-      toast.success(`Payment completed successfully! Order ID: ${location.state.orderId}`);
-      
-      // Force refresh cart to ensure it's empty
-      if (refreshCart) {
-        refreshCart();
-      }
-      
-      // Clear the location state to prevent showing the message again
+      toast.success(
+        `Payment completed successfully! Order ID: ${location.state.orderId}`
+      );
+      if (refreshCart) refreshCart();
       window.history.replaceState({}, document.title);
     } else if (location.state?.error) {
-      toast.error(location.state.message || "There was an error with your order");
+      toast.error(
+        location.state.message || "There was an error with your order"
+      );
       window.history.replaceState({}, document.title);
     }
   }, [location.state, refreshCart]);
@@ -36,18 +33,19 @@ const Orders = () => {
         setLoading(false);
         return;
       }
-      
+
       try {
-        const ordersRef = collection(db, 'users', userId, 'orders');
-        // Order by date descending to show newest first
-        const q = query(ordersRef, orderBy('date', 'desc'));
+        const ordersRef = collection(db, "users", userId, "orders");
+        const q = query(ordersRef, orderBy("date", "desc"));
         const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setOrders(data);
-        console.log(`Fetched ${data.length} orders for user:`, userId);
       } catch (error) {
-        console.error('Error fetching orders:', error);
-        toast.error('Failed to load orders');
+        console.error("Error fetching orders:", error);
+        toast.error("Failed to load orders");
       } finally {
         setLoading(false);
       }
@@ -56,23 +54,35 @@ const Orders = () => {
     fetchOrders();
   }, [userId]);
 
-  const getItemName = (itemId) => {
-    const item = food_list.find(food => food._id === itemId);
-    return item ? item.name : itemId;
+  const getItemDetails = (itemId) => {
+    const item = food_list.find((food) => food._id === itemId);
+    return item
+      ? {
+          name: item.name,
+          price: item.price,
+          image: item.image,
+        }
+      : {
+          name: itemId,
+          price: 0,
+          image: null,
+        };
   };
 
   const getStatusBadge = (order) => {
-    const status = order.paymentStatus || order.status || 'pending';
+    const status = order.paymentStatus || order.status || "pending";
     const statusClass = {
-      'completed': 'status-completed',
-      'paid': 'status-completed',
-      'pending': 'status-pending',
-      'failed': 'status-failed',
-      'payment_failed': 'status-failed'
+      completed: "status-completed",
+      paid: "status-completed",
+      pending: "status-pending",
+      failed: "status-failed",
+      payment_failed: "status-failed",
     };
 
     return (
-      <span className={`status-badge ${statusClass[status] || 'status-pending'}`}>
+      <span
+        className={`status-badge ${statusClass[status] || "status-pending"}`}
+      >
         {status.toUpperCase()}
       </span>
     );
@@ -90,37 +100,75 @@ const Orders = () => {
         </div>
       ) : (
         <div className="order-list">
-          {orders.map(order => (
+          {orders.map((order) => (
             <div key={order.id} className="order-card">
               <div className="order-header">
                 <div>
-                  <p><strong>Order ID:</strong> {order.id}</p>
-                  <p><strong>Date:</strong> {new Date(order.date).toLocaleString()}</p>
+                  <p>
+                    <strong>Order #{order.id.slice(0, 8)}</strong>
+                  </p>
+                  <p className="order-date">
+                    {new Date(order.date).toLocaleDateString("en-US", {
+                      weekday: "short",
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
                 </div>
-                <div>
-                  {getStatusBadge(order)}
-                </div>
+                <div>{getStatusBadge(order)}</div>
               </div>
-              
+
               <div className="order-details">
-                <p><strong>Delivery Address:</strong></p>
-                <p>{order.deliveryInfo?.street}, {order.deliveryInfo?.city}, {order.deliveryInfo?.state} {order.deliveryInfo?.zip}</p>
-                
+                <div className="delivery-info">
+                  <h4>Delivery Address</h4>
+                  <p>
+                    {order.deliveryInfo?.street}, {order.deliveryInfo?.city},{" "}
+                    {order.deliveryInfo?.state} {order.deliveryInfo?.zip}
+                  </p>
+                </div>
+
                 <div className="order-items">
-                  <p><strong>Items:</strong></p>
+                  <h4>Order Items</h4>
                   <ul>
-                    {Object.entries(order.items || {}).map(([id, qty]) => (
-                      <li key={id}>
-                        {getItemName(id)} × {qty}
-                      </li>
-                    ))}
+                    {Object.entries(order.items || {}).map(([id, qty]) => {
+                      const item = getItemDetails(id);
+                      const itemTotal = item.price * qty;
+                      return (
+                        <li key={id}>
+                          {item.image && (
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="item-image"
+                            />
+                          )}
+                          <div className="item-details">
+                            <span className="item-name">{item.name}</span>
+                            <div className="item-price-breakdown">
+                              <span className="item-qty">{qty}</span>
+                              <span className="item-multiply">×</span>
+                              <span className="item-price">
+                                ${item.price.toFixed(2)}
+                              </span>
+                              <span className="item-equals">=</span>
+                              <span className="item-total">
+                                ${itemTotal.toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
-                
+
                 <div className="order-summary">
                   <div className="summary-row">
                     <span>Subtotal:</span>
-                    <span>${order.subtotal?.toFixed(2) || '0.00'}</span>
+                    <span>${order.subtotal?.toFixed(2) || "0.00"}</span>
                   </div>
                   {order.discount > 0 && (
                     <div className="summary-row discount">
@@ -130,18 +178,29 @@ const Orders = () => {
                   )}
                   <div className="summary-row">
                     <span>Delivery Fee:</span>
-                    <span>${order.deliveryFee?.toFixed(2) || '0.00'}</span>
+                    <span>${order.deliveryFee?.toFixed(2) || "0.00"}</span>
                   </div>
                   <div className="summary-row total">
-                    <span><strong>Total:</strong></span>
-                    <span><strong>${order.total?.toFixed(2) || '0.00'}</strong></span>
+                    <span>
+                      <strong>Total:</strong>
+                    </span>
+                    <span>
+                      <strong>${order.total?.toFixed(2) || "0.00"}</strong>
+                    </span>
                   </div>
                 </div>
-                
+
                 {order.razorpayPaymentId && (
-                  <p className="payment-id">
-                    <strong>Payment ID:</strong> {order.razorpayPaymentId}
-                  </p>
+                  <div className="payment-info">
+                    <h4>Payment Details</h4>
+                    <p>
+                      <strong>Payment ID:</strong> {order.razorpayPaymentId}
+                    </p>
+                    <p>
+                      <strong>Payment Method:</strong>{" "}
+                      {order.paymentMethod || "Online Payment"}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
