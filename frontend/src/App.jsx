@@ -13,6 +13,7 @@ import Payment from "./pages/Payment/Payment";
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); 
   const { loading } = useContext(StoreContext);
 
   if (loading) return <div className="loading-screen">Loading...</div>;
@@ -22,9 +23,9 @@ const App = () => {
       {!loading && showLogin && <LoginPopup setShowLogin={setShowLogin} />}
 
       <div className="app">
-        <Navbar setShowLogin={setShowLogin} />
+        <Navbar setShowLogin={setShowLogin} setSearchTerm={setSearchTerm} />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home searchTerm={searchTerm} />} />
 
           <Route
             path="/cart"

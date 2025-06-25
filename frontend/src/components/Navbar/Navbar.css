@@ -99,6 +99,31 @@
     color: tomato;
 }
 
+.navbar-search-input {
+  width: 300px;
+  padding: 7.5px 10px;
+  padding-left: 30px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  margin-right: 10px;
+  outline: none;
+}
+
+.input-wrapper {
+  position: relative;
+  width: fit-content;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%);
+  height: 16px;
+  width: 16px;
+  pointer-events: none; /* So input clicks still register */
+}
+
 @media (max-width:1050px) {
     .navbar .logo{
         width: 140px;

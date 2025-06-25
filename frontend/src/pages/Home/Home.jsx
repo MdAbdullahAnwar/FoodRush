@@ -5,15 +5,15 @@ import ExploreMenu from '../../components/ExploreMenu/ExploreMenu'
 import FoodDisplay from '../../components/FoodDisplay/FoodDisplay'
 import AppDownload from '../../components/AppDownload/AppDownload'
 
-const Home = () => {
+const Home = ({ searchTerm }) => {
 
     const [category,setCategory] = useState("All");  
 
   return (
     <div>
       <Header/>
-      <ExploreMenu category={category} setCategory={setCategory}/>
-      <FoodDisplay category={category}/>
+      <ExploreMenu category={category} setCategory={setCategory} />
+      <FoodDisplay category={category} searchTerm={searchTerm} />
       <AppDownload/>
     </div>
   )
