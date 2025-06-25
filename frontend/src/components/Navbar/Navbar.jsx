@@ -97,6 +97,11 @@ const Navbar = ({ setShowLogin, setSearchTerm }) => {
           <div className="navbar-profile">
             <img src={assets.profile_icon} alt="Profile" />
             <ul className="nav-profile-dropdown">
+              <li onClick={() => navigate("/profile")}>
+                <img src={assets.profile_image} alt="Profile" />
+                <p>UpdateProfile</p>
+              </li>
+              <hr/>
               <li onClick={() => navigate("/orders")}>
                 <img src={assets.bag_icon} alt="Bag" />
                 <p>Orders</p>

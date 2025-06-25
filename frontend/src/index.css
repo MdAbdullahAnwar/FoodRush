@@ -25,17 +25,39 @@ a{
 .loading-screen {
   height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 1.8rem;
-  font-weight: bold;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: #333;
+  background-color: #f9f9f9;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top: 5px solid #ff6347;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeIn {
-  0%{
+  from {
     opacity: 0;
+    transform: translateY(10px);
   }
-  100%{
-    opacity: 1;;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

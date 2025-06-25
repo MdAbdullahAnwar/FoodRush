@@ -64,7 +64,13 @@ const Cart = () => {
   };
 
   if (loading) {
-    return <div className="cart">Loading...</div>;
+    if (loading)
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner"></div>
+        Loading...
+      </div>
+    );
   }
 
   return (

@@ -6,10 +6,13 @@ import Cart from "./pages/Cart/Cart";
 import PlaceOrder from "./pages/PlaceOrder/PlaceOrder";
 import Footer from "./components/Footer/Footer";
 import LoginPopup from "./components/LoginPopup/LoginPopup";
+import UserProfile from "./pages/UserProfile/UserProfile";
 import Orders from "./pages/Orders/Orders";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { StoreContext } from "./context/StoreContext";
 import Payment from "./pages/Payment/Payment";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -21,7 +24,7 @@ const App = () => {
   return (
     <>
       {!loading && showLogin && <LoginPopup setShowLogin={setShowLogin} />}
-
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="app">
         <Navbar setShowLogin={setShowLogin} setSearchTerm={setSearchTerm} />
         <Routes>
@@ -53,6 +56,8 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/profile" element={<UserProfile />} />
 
           <Route
             path="/payment"

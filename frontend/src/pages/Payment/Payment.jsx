@@ -53,7 +53,6 @@ const Payment = () => {
                 throw new Error("Incomplete payment response");
               }
 
-              // Update order status
               await updateDoc(doc(db, "users", userId, "orders", orderId), {
                 paymentStatus: "completed",
                 razorpayPaymentId: response.razorpay_payment_id,
@@ -63,7 +62,6 @@ const Payment = () => {
                 paidAt: new Date().toISOString(),
               });
 
-              // Clear cart with retry logic
               let retries = 0;
               const maxRetries = 3;
               while (retries < maxRetries) {

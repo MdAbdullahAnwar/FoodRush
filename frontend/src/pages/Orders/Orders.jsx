@@ -77,7 +77,13 @@ const Orders = () => {
     );
   };
 
-  if (loading) return <div className="orders">Loading orders...</div>;
+  if (loading)
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner"></div>
+        Loading...
+      </div>
+    );
 
   return (
     <div className="orders">
