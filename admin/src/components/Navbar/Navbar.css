@@ -1,14 +1,39 @@
-.navbar{
+.navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 4%;
+    border-bottom: 2px solid tomato;
 }
 
-.navbar .logo{
-    width: max(10%,180px);
+.navbar .logo {
+    width: max(10%, 180px);
 }
 
-.navbar .profile{
+.navbar .profile {
     width: 40px;
+}
+
+.home-btn {
+    background-color: tomato;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-left: auto;
+    margin-right: 20px;
+}
+
+.navbar button:hover {
+    background-color: #e63c2b;
+    transform: scale(1.05);
+}
+
+.navbar-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
