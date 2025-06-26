@@ -1,12 +1,87 @@
-# React + Vite
+# 👨‍💻 FoodRush Admin
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**FoodRush Admin** is the backend management panel for the FoodRush food ordering platform. Built using **React.js**, **Clerk Authentication**, and **Firebase Firestore**, this interface empowers administrators to manage the food items, categories and orders efficiently.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## Expanding the ESLint configuration
+### ✅ Admin Capabilities
+- **Authentication via Clerk** (Signup & Login)
+- **Add Products**: Upload new food items with image, price, category, and description.
+- **Edit Products**: Update name, price, image, and category.
+- **Delete Products**: Remove items from the menu.
+- **Manage Categories**: Add or remove food categories.
+- **Order Management**: 
+  - View all user orders.
+  - Update order statuses (e.g., Processing, Out for delivery, Delivered, Cancelled).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🛠️ Tech Stack
+
+| Frontend           | Backend            |
+|--------------------|--------------------|
+| React.js           | Firebase Firestore |
+| Clerk (Auth)       |                    |
+| React Toastify     |                    |
+| Lucide React Icons |                    |
+
+---
+
+## 📁 Folder Structure
+```
+admin/
+├── public/
+├── src/
+│ ├── assets/
+│ ├── components/
+│ │ ├── Admin/
+│ │ │ └── UploadFoods.jsx
+│ │ ├── Navbar/
+│ │ │ ├── Navbar.css
+│ │ │ └── Navbar.jsx
+│ │ └── Sidebar/
+│ │ ├── Sidebar.css
+│ │ └── Sidebar.jsx
+│ ├── pages/
+│ │ ├── Add/
+│ │ │ ├── Add.css
+│ │ │ └── Add.jsx
+│ │ ├── Home/
+│ │ │ ├── Home.css
+│ │ │ └── Home.jsx
+│ │ ├── List/
+│ │ │ ├── EditModal.css
+│ │ │ ├── EditModal.jsx
+│ │ │ ├── List.css
+│ │ │ └── List.jsx
+│ │ ├── Login/
+│ │ │ ├── Login.css
+│ │ │ └── Login.jsx
+│ │ ├── Orders/
+│ │ │ ├── Orders.css
+│ │ │ └── Orders.jsx
+│ │ └── SignUp/
+│ │ ├── SignUp.css
+│ │ └── SignUp.jsx
+│ ├── App.jsx
+│ ├── firebase.js
+│ ├── index.css
+│ └── main.jsx
+├── .gitignore
+├── README.md
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+└── vite.config.js
+```
+
+## 📬 Feedback & Contributions
+Feel free to contribute or suggest improvements by opening issues or pull requests.
+
+---
+
+## 📄 License
+This project is licensed under the MIT License.
