@@ -1,6 +1,6 @@
 # 👨‍💻 FoodRush Admin
 
-**FoodRush Admin** is the backend management panel for the FoodRush food ordering platform. Built using **React.js**, **Clerk Authentication**, and **Firebase Firestore**, this interface empowers administrators to manage the food items, categories and orders efficiently.
+**FoodRush Admin** is the backend management panel for the FoodRush food ordering platform. Built using **React.js**, **Clerk Authentication**, **Tawk.To - Live Chatting** and **Firebase Firestore**, this interface empowers administrators to manage the food items, categories, orders efficiently also solving queries from Customer with Live Chat feature.
 
 ---
 
@@ -15,6 +15,7 @@
 - **Order Management**: 
   - View all user orders.
   - Update order statuses (e.g., Processing, Out for delivery, Delivered, Cancelled).
+- **Customer Support using Tawk.To**
 
 ---
 
