@@ -1,6 +1,6 @@
 # 🍔 FoodRush - Food Ordering Platform
 
-FoodRush is a full-stack food ordering application built with **React**, **Firebase**, and **Clerk Authentication**. It features a modern **Admin Dashboard** for restaurant owners and a rich **Frontend User Interface** for customers to browse, order and manage food delivery.
+FoodRush is a full-stack food ordering application built with **React**, **Firebase**, and **Clerk Authentication**. It features a modern **Admin Dashboard** for restaurant owners and a rich **Frontend User Interface** for customers to browse, order and manage food delivery. Also **Customer** can communicate to **Admin** by using **Tawk.To** Chat Widget.
 
 ---
 
@@ -8,7 +8,7 @@ FoodRush is a full-stack food ordering application built with **React**, **Fireb
 
 | Role     | Technology                                                                 |
 |----------|----------------------------------------------------------------------------|
-| Frontend | React.js, CSS, React Toastify, Lucide React Icons                          |
+| Frontend | React.js, CSS, React Toastify, Lucide React Icons, Tawk.To                 |
 | Backend  | Firebase (Authentication, Firestore DB), Razorpay (Payment)                |
 | Auth     | Clerk (Admin Panel), Firebase (Users)                                      |
 
@@ -34,6 +34,9 @@ FoodRush is a full-stack food ordering application built with **React**, **Fireb
 ### 📦 Order Management
 - View all placed orders by users
 - Update order statuses (e.g. Pending → Delivered)
+
+### 💬 Tawk.to 
+  - **Chat Dashboard** that redirects to Tawk.To for Customer Suppport
 
 ---
 
@@ -67,12 +70,12 @@ FoodRush is a full-stack food ordering application built with **React**, **Fireb
 - Update name, email, phone
 - Save multiple delivery addresses
 
----
+### 💬 Tawk.to Integration
+- **Chat Widget** For Customers to ask queries from Admin
 
-## 💳 Payment Integration
+### 💳 Payment Integration
 
 - **RazorPay** is used for secure payment handling.
-- You can integrate sandbox/test keys for development purposes.
 
 ---
 
@@ -80,29 +83,89 @@ FoodRush is a full-stack food ordering application built with **React**, **Fireb
 
 ```
 FoodRush/
-├── admin/ # Admin Panel
-│ ├── src/
-│ │ ├── assets/
-│ │ ├── components/ # Sidebar, Navbar, Upload UI
-│ │ ├── pages/
-│ │ │ ├── Add/ # Add product
-│ │ │ ├── List/ # Product list and edit modal
-│ │ │ ├── Orders/ # Order management
-│ │ │ └── Login/Signup
-│ │ ├── firebase.js # Firebase config
-│ │ └── main.jsx
-│ └── package.json
+admin/
+├── public/
+├── src/
+│ ├── assets/
+│ ├── components/
+│ │ ├── Admin/
+│ │ │ └── UploadFoods.jsx
+│ │ ├── Navbar/
+│ │ │ ├── Navbar.css
+│ │ │ └── Navbar.jsx
+│ │ └── Sidebar/
+│ │ ├── Sidebar.css
+│ │ └── Sidebar.jsx
+│ ├── pages/
+│ │ ├── Add/
+│ │ │ ├── Add.css
+│ │ │ └── Add.jsx
+│ │ ├── Home/
+│ │ │ ├── Home.css
+│ │ │ └── Home.jsx
+│ │ ├── List/
+│ │ │ ├── EditModal.css
+│ │ │ ├── EditModal.jsx
+│ │ │ ├── List.css
+│ │ │ └── List.jsx
+│ │ ├── Login/
+│ │ │ ├── Login.css
+│ │ │ └── Login.jsx
+│ │ ├── Orders/
+│ │ │ ├── Orders.css
+│ │ │ └── Orders.jsx
+│ │ └── SignUp/
+│ │ ├── SignUp.css
+│ │ └── SignUp.jsx
+│ ├── App.jsx
+│ ├── firebase.js
+│ ├── index.css
+│ └── main.jsx
+├── .gitignore
+├── README.md
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+└── vite.config.js
 
-├── frontend/ # User Interface
-│ ├── src/
-│ │ ├── assets/
-│ │ ├── components/
-│ │ │ ├── Header, Footer, Menu, Cart, etc.
-│ │ ├── context/ # (StoreContext for now)
-│ │ ├── pages/ # Cart, Home, Payment, Orders
-│ │ ├── firebase.js # Firebase config
-│ │ └── main.jsx
-│ └── package.json
+frontend/
+├── public/
+│ └── index.html
+├── src/
+│ ├── assets/ # Images, logos, etc.
+│ ├── components/
+│ │ ├── AppDownload/ # App banner section
+│ │ ├── ExploreMenu/ # Category filtering UI
+│ │ ├── FoodDisplay/ # List foods by category
+│ │ ├── FoodItem/ # Individual food card
+│ │ ├── Footer/ # Footer
+│ │ ├── Header/ # Top header with banner
+│ │ ├── LoginPopup/ # Login modal
+│ │ ├── Navbar/ # Site-wide navigation bar
+│ │ ├── ProtectedRoute/ # Route guard logic
+│ │ └── TawkToWidget/ # Chat Widget
+│ ├── context/
+│ │ └── StoreContext.jsx # Context API store (legacy)
+│ ├── features/ # Redux Toolkit slices
+│ │ ├── auth/ # Firebase auth slice
+│ │ ├── cart/ # Cart slice + helpers
+│ │ └── food/ # Food fetch slice
+│ ├── pages/
+│ │ ├── Cart/ # Cart page
+│ │ ├── Home/ # Homepage
+│ │ ├── Orders/ # Past order history
+│ │ ├── Payment/ # RazorPay integration
+│ │ ├── PlaceOrder/ # Address & order confirmation
+│ │ └── UserProfile/ # Profile update form
+│ ├── firebase.js # Firebase SDK setup
+│ ├── App.jsx # Main route file
+│ ├── main.jsx # ReactDOM root + Providers
+│ └── index.css # Global styles
+├── .gitignore
+├── package.json
+├── vite.config.js
+└── README.md
 ```
 
 ## 🤝 Contributions
