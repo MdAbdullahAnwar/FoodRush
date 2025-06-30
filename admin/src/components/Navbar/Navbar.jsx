@@ -5,14 +5,29 @@ import { useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
+
+  const isAdmin = user?.publicMetadata?.role === 'admin';
 
   return (
     <div className='navbar'>
       <img className='logo' src={assets.logo} alt='FoodRush Admin'/>
+
       <div className="navbar-profile">
         <button className="home-btn" onClick={() => navigate('/')}>Home</button>
+
+        {isSignedIn && (
+          <a
+            href="https://dashboard.tawk.to/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="dashboard-link-btn"
+          >
+            Chat Dashboard
+          </a>
+        )}
+
         {isSignedIn ? (
           <UserButton afterSignOutUrl="/" />
         ) : (

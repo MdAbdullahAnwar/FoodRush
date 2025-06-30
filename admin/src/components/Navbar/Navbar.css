@@ -19,15 +19,14 @@
     color: white;
     border: none;
     padding: 8px 16px;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
     transition: all 0.3s ease;
     margin-left: auto;
-    margin-right: 20px;
 }
 
-.navbar button:hover {
+.home-btn:hover {
     background-color: #e63c2b;
     transform: scale(1.05);
 }
@@ -36,4 +35,19 @@
     display: flex;
     align-items: center;
     gap: 20px;
+}
+
+.dashboard-link-btn {
+  background-color: #04b904;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  margin-right: 10px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.dashboard-link-btn:hover {
+  background-color: #039803;
 }
