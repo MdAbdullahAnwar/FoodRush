@@ -4,6 +4,14 @@ FoodRush is a full-stack food ordering application built with **React**, **Fireb
 
 ---
 
+## 🌐 Live Demo
+
+- 👉 [Click here to try FoodRush](https://food-rush-customer-psks.vercel.app/)
+
+- 👉 [Click here to try FoodRush Admin Panel](https://food-rush-admin.vercel.app/)
+
+---
+
 ## 🛠 Tech Stack
 
 | Role     | Technology                                                                 |
